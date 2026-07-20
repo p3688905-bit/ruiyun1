@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+
+<html lang="zh-TW">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>藍橋風雲：瑞雲養成記</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL_XinXiaoWei&family=Noto_Serif_TC:wght@400;700;900&family=Press_Start_2P&display=swap" rel="stylesheet">
+
+    <style>
+
+        body {
+
+            background-color: #0a0807;
+
+            font-family: 'Noto Serif TC', serif;
+
+            display: flex; align-items: center; justify-content: center;
+
+            min-height: 100vh; margin: 0; overflow: hidden;
+
+        }
+
+        .game-16-9-container {
+
+            width: 100vw; height: 56.25vw; max-height: 100vh; max-width: 177.78vh;
+
+            position: relative; background: #ece5d3; box-shadow: 0 0 60px rgba(0,0,0,0.9);
+
+            display: flex; flex-direction: column; overflow: hidden;
+
+        }
+
+        .retro-window { border: 4px solid #3e2723; box-shadow: inset -2px -2px 0px #795548, inset 2px 2px 0px #fff; }
+
+        .retro-panel-inner { background: #dfd4b8; border: 2px solid #8d6e63; box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2); }
+
+        .crt-overlay::before {
+
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+
+            z-index: 100; background-size: 100% 3px, 3px 100%; pointer-events: none;
+
+        }
+
+        .monitor-crt { background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
+
+        .pixel-bar-bg { background-color: #4e342e; border: 2px solid #3e2723; box-shadow: inset 0px 1px 3px rgba(0,0,0,0.8); height: 100%; min-height: 10px; }
+
+        .pixel-bar-fill { height: 100%; box-shadow: inset -2px 0px 0px rgba(0,0,0,0.3), inset 1px 1px 0px rgba(255,255,255,0.3); transition: width 0.4s ease-out; }
+
+        @keyframes floatUp { 0% { transform: translateY(0) scale(0.8); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-30px) scale(1.1); opacity: 0; } }
+
+        .floating-stat { animation: floatUp 1.2s ease-out forwards; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+
+        .shake-effect { animation: shake 0.4s ease-in-out; }
+
+        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+        .blink-arrow { animation: blink 0.8s infinite; }
+
+        .blink-fast { animation: blink 0.4s infinite; }
+
+        .landscape-warning { display: none; }
+
+        @media (orientation: portrait) { .landscape-warning { display: flex !important; } .game-16-9-container { display: none !important; } }
+
+        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #8d6e63; border-radius: 2px; }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="landscape-warning fixed inset-0 z-[200] bg-stone-950 text-amber-200 flex-col items-center justify-center text-center p-6 w-full h-full">
+
+        <i class="fa-solid fa-mobile-screen-button text-6xl mb-6 animate-pulse" style="transform: rotate(-90deg);"></i>
+
+        <h2 class="text-2xl font-serif-tc font-bold mb-2">請旋轉您的設備</h2>
+
+        <p class="text-sm text-stone-400">長篇擴充版採用原生 16:9 寬螢幕設計<br>請轉為「橫向」以獲得最佳遊玩體驗</p>
+
+    </div>
+
+    <div class="game-16-9-container retro-window crt-overlay p-2 md:p-3">
+
+        <!-- ================= 遊戲標題封面 ================= -->
+
+        <div id="title-screen" class="absolute inset-0 z-[150] bg-[#120805] flex flex-col items-center justify-center cursor-pointer transition-opacity duration-1000 overflow-hidden" onclick="dismissTitleScreen()">
+
+            <img id="title-bg-image" src="" alt="遊戲封面圖" class="absolute inset-0 w-full h-full object-cover z-0 hidden">
+
+            <div class="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-screen z-1" style="background-image: radial-gradient(circle, #b0132b 10%, #120805 70%);"></div>
+
+            <svg class="absolute bottom-0 w-3/4 h-[85%] opacity-40 drop-shadow-[0_0_20px_rgba(212,175,55,0.3)] pointer-events-none z-2" preserveAspectRatio="xMidYMax meet" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+
+                <path d="M 60,110 C 60,60 140,60 140,110 C 140,140 160,220 160,220 L 40,220 C 40,220 60,140 60,110 Z" fill="#3e2723"/>
+
+                <circle cx="100" cy="50" r="28" fill="#3e2723"/>
+
+                <path d="M 120,40 L 160,25" stroke="#d4af37" stroke-width="2" stroke-linecap="round"/>
+
+                <circle cx="160" cy="25" r="3" fill="#d4af37"/>
+
+                <circle cx="165" cy="22" r="2" fill="#d4af37"/>
+
+            </svg>
+
+            <div class="relative z-10 flex flex-col items-center mt-[-5%] pointer-events-none">
+
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif-tc font-black tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-b from-[#fff3ed] via-[#f4a261] to-[#d4af37] drop-shadow-[0_5px_5px_rgba(0,0,0,0.9)]" style="-webkit-text-stroke: 1px #5d4037;">
+
+                    藍 橋 風 雲
+
+                </h1>
+
+                <p class="mt-4 text-xs md:text-sm lg:text-base font-serif-tc tracking-[0.5em] text-amber-200 drop-shadow-md border-b-2 border-amber-600/50 pb-1">
+
+                    ~ 瑞雲養成記 · 擴充完整版 ~
+
+                </p>
+
+            </div>
+
+            <div class="absolute bottom-[18%] z-10 flex flex-col items-center blink-arrow pointer-events-none">
+
+                <p class="text-amber-500 font-pixel text-[8px] md:text-[10px] tracking-widest mb-1.5">PLEASE CLICK TO START</p>
+
+                <p class="text-amber-100 font-serif-tc text-xs md:text-sm font-bold tracking-[0.3em] bg-black/60 px-5 py-1.5 rounded border border-amber-800/60 shadow-lg">
+
+                    點 擊 畫 面 開 始
+
+                </p>
+
+            </div>
+
+            <div class="absolute bottom-4 z-10 text-[8px] md:text-[9px] text-stone-600 font-mono tracking-widest text-center pointer-events-none">
+
+                <p>16:9 PC-98 EMULATION PLATFORM</p>
+
+                <p>© 2026 RETRO LITERATURE SIMULATION PROJECT</p>
+
+            </div>
+
+        </div>
+
+        <!-- ================= 章節過場動畫 ================= -->
+        <div id="chapter-transition" class="absolute inset-0 z-[120] bg-stone-950 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-700 overflow-hidden">
+            <img id="transition-bg-image" src="" alt="章節過場" class="absolute inset-0 w-full h-full object-cover opacity-60">
+            <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/50 to-transparent"></div>
+            <div class="relative z-10 text-center">
+                <p id="transition-subtitle" class="text-amber-400 font-serif-tc text-sm md:text-lg tracking-[0.5em] mb-2 opacity-0 transition-opacity duration-700 delay-300">第 X 章</p>
+                <h2 id="transition-title" class="text-3xl md:text-5xl font-serif-tc font-black text-amber-100 tracking-[0.3em] drop-shadow-[0_0_20px_rgba(212,175,55,0.5)] opacity-0 transition-opacity duration-700 delay-500">章節標題</h2>
+                <div class="mt-4 w-24 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto opacity-0 transition-opacity duration-700 delay-700"></div>
+            </div>
+        </div>
+
+        <button onclick="toggleMute()" id="btn-sound" class="absolute top-4 right-4 z-50 bg-[#e2d7c0] border-2 border-[#8d6e63] text-[#3e2723] hover:bg-[#d4af37] px-2 py-1 rounded shadow text-[9px] md:text-xs flex items-center gap-1 font-bold">
+
+            <i id="sound-icon" class="fa-solid fa-volume-high"></i> BGM
+
+        </button>
+
+        <!-- 頂部標題列 -->
+
+        <header class="h-[10%] min-h-[44px] flex justify-between items-center bg-[#3e2723] text-[#f1ebd9] px-3 py-1 rounded border-2 border-[#795548] shrink-0 shadow-md">
+
+            <div class="flex items-center gap-2 h-full">
+
+                <div class="h-8 w-8 bg-amber-600 border-2 border-[#fff] flex items-center justify-center rounded shadow-inner shrink-0">
+
+                    <i class="fa-solid fa-book-open-reader text-[#3e2723] text-sm"></i>
+
+                </div>
+
+                <div class="flex flex-col justify-center">
+
+                    <h1 class="text-lg md:text-xl font-serif-tc font-black tracking-widest text-amber-100 leading-none">藍橋風雲</h1>
+
+                    <span class="text-[9px] md:text-[10px] text-amber-500 font-serif-tc tracking-wider">~ 長篇擴充 ‧ 修復版 ~</span>
+
+                </div>
+
+            </div>
+
+            <div class="flex items-center gap-3 bg-[#261612] px-3 py-1 border border-[#5d4037] rounded h-full mr-16 md:mr-20">
+
+                <div class="text-center">
+
+                    <span class="text-[8px] text-stone-400 block tracking-widest">時間</span>
+
+                    <span id="game-date-display" class="text-xs md:text-sm text-amber-400 font-bold font-serif-tc">第一年 ‧ 一月 上旬</span>
+
+                </div>
+
+                <div class="h-[80%] w-px bg-stone-700"></div>
+
+                <div class="text-center">
+
+                    <span class="text-[8px] text-stone-400 block">身家資金</span>
+
+                    <span id="player-gold" class="text-xs md:text-sm text-emerald-400 font-mono font-bold">1.5 <span class="text-[8px]">兩</span></span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <main class="flex-1 flex flex-row gap-2 mt-2 overflow-hidden h-full">
+
+            <!-- 左側：綜合屬性面板 -->
+
+            <aside class="w-[25%] h-full flex flex-col gap-2 shrink-0">
+
+                <div class="retro-panel-inner p-1.5 md:p-2 rounded flex-[3.5] flex flex-col justify-between shadow-md relative">
+
+                    <h2 class="text-[11px] md:text-xs font-bold font-serif-tc border-b border-[#8d6e63]/40 pb-1 mb-1 flex items-center justify-between text-[#4e342e] shrink-0">
+
+                        <span><i class="fa-solid fa-address-card mr-1"></i> 綜合狀態</span>
+
+                    </h2>
+
+                    <div id="badge-stage" class="absolute top-1.5 right-2 text-[8px] md:text-[9px] bg-indigo-800 text-white px-1.5 py-0.5 rounded font-normal shadow-sm">
+
+                        第一章：初試啼聲
+
+                    </div>
+
+                    <div class="flex-1 flex flex-col justify-evenly space-y-0.5 overflow-hidden mt-1">
+
+                        <div class="flex flex-col justify-center flex-1">
+
+                            <div class="flex justify-between text-[9px] md:text-[10px] font-bold mb-0.5"><span class="text-blue-900">賀生名望</span><span class="font-mono text-blue-900" id="val-rep">20</span></div>
+
+                            <div class="pixel-bar-bg rounded-sm overflow-hidden h-[7px] md:h-[9px]"><div id="bar-rep" class="pixel-bar-fill bg-blue-500" style="width: 20%;"></div></div>
+
+                        </div>
+
+                        <div class="flex flex-col justify-center flex-1">
+
+                            <div class="flex justify-between text-[9px] md:text-[10px] font-bold mb-0.5"><span class="text-amber-950">瑞雲才情</span><span class="font-mono text-[#8b6540]" id="val-culture">60</span></div>
+
+                            <div class="pixel-bar-bg rounded-sm overflow-hidden h-[7px] md:h-[9px]"><div id="bar-culture" class="pixel-bar-fill bg-amber-600" style="width: 60%;"></div></div>
+
+                        </div>
+
+                        <div class="flex flex-col justify-center flex-1">
+
+                            <div class="flex justify-between text-[9px] md:text-[10px] font-bold mb-0.5"><span class="text-amber-950">健康體力</span><span class="font-mono text-[#8b6540]" id="val-energy">100</span></div>
+
+                            <div class="pixel-bar-bg rounded-sm overflow-hidden h-[7px] md:h-[9px]"><div id="bar-energy" class="pixel-bar-fill bg-emerald-500" style="width: 100%;"></div></div>
+
+                        </div>
+
+                        <div class="flex flex-col justify-center flex-1">
+
+                            <div class="flex justify-between text-[9px] md:text-[10px] font-bold mb-0.5"><span class="text-red-800">累積疲勞</span><span class="font-mono text-red-700" id="val-fatigue">0</span></div>
+
+                            <div class="pixel-bar-bg rounded-sm overflow-hidden h-[7px] md:h-[9px]"><div id="bar-fatigue" class="pixel-bar-fill bg-stone-500" style="width: 0%;"></div></div>
+
+                        </div>
+
+                        <div class="flex flex-col justify-center flex-1">
+
+                            <div class="flex justify-between text-[9px] md:text-[10px] font-bold mb-0.5"><span class="text-purple-900" id="lbl-love">傾心度</span><span class="font-mono text-purple-900" id="val-love">5</span></div>
+
+                            <div class="pixel-bar-bg rounded-sm overflow-hidden h-[7px] md:h-[9px]"><div id="bar-love" class="pixel-bar-fill bg-purple-500 transition-colors" style="width: 5%;"></div></div>
+
+                        </div>
+
+                        <div id="stat-block-ink" class="opacity-20 transition-all flex flex-col justify-center flex-1 pointer-events-none">
+
+                            <div class="flex justify-between text-[9px] md:text-[10px] font-bold mb-0.5"><span class="text-stone-800">額頭墨印</span><span class="font-mono text-stone-900" id="val-ink">0</span></div>
+
+                            <div class="pixel-bar-bg rounded-sm overflow-hidden bg-stone-900/20 h-[7px] md:h-[9px]"><div id="bar-ink" class="pixel-bar-fill bg-stone-900" style="width: 0%;"></div></div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- 任務與日誌 -->
+
+                <div class="retro-panel-inner p-1.5 md:p-2 rounded flex-[2.5] flex flex-col shadow-md">
+
+                    <h3 class="text-[10px] md:text-xs font-bold font-serif-tc text-[#4e342e] mb-1 shrink-0 flex items-center gap-1">
+
+                        <i class="fa-solid fa-scroll text-amber-700"></i> 章節目標
+
+                    </h3>
+
+                    <div class="bg-amber-100/60 p-1.5 rounded border border-[#8d6e63]/30 text-[9px] md:text-[10px] text-[#4e342e] leading-tight mb-1.5 shrink-0 shadow-inner">
+
+                        <span id="stage-goal-title" class="font-bold text-amber-900 block mb-0.5">■ 累積資本與聲望</span>
+
+                        <span id="stage-goal-desc">瑞雲即將掛牌。多去街頭「打聽情報」、抄書備錢。</span>
+
+                    </div>
+
+                    <div id="live-feed" class="flex-1 overflow-y-auto text-[8px] md:text-[9px] font-mono text-[#5d4037] p-1.5 bg-stone-900/5 rounded border border-[#8d6e63]/20 space-y-0.5 shadow-inner">
+
+                        <div>> 系統載入成功。</div>
+
+                        <div class="text-blue-800">> [第二章監視器修復版] 啟用。</div>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+            <!-- 中間：立繪與劇本 -->
+
+            <section class="w-[50%] h-full flex flex-col gap-2 shrink-0">
+
+                <div id="viewscreen" class="flex-[1.8] relative bg-amber-50 border-4 border-[#5d4037] rounded shadow-inner overflow-hidden flex items-end justify-center">
+
+                    <div class="absolute inset-0 z-0 bg-cover bg-center opacity-40 mix-blend-multiply" style="background-image: radial-gradient(circle, #e2d7c0 20%, #a89475 80%);"></div>
+
+                    <div class="absolute top-2 left-2 right-2 bottom-2 border border-[#8b6540]/30 pointer-events-none z-10 rounded"></div>
+
+                    <div class="relative z-10 w-full h-[95%] flex items-end justify-center transition-all duration-500" id="anime-canvas">
+
+                        <img id="main-scene-image" src="" alt="主畫面立繪" class="absolute inset-0 w-full h-full object-contain z-20 hidden transition-opacity duration-500">
+
+                        <!-- CH1: 珠簾半掩 -->
+                        <svg id="svg-ch1" class="w-full h-full object-contain drop-shadow-md transition-opacity duration-300" preserveAspectRatio="xMidYMax meet" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+
+                            <g stroke="#8b6540" stroke-width="1.5" opacity="0.6">
+
+                                <line x1="20" y1="0" x2="20" y2="220" stroke-dasharray="2,4"/><line x1="60" y1="0" x2="60" y2="220" stroke-dasharray="2,4"/><line x1="100" y1="0" x2="100" y2="220" stroke-dasharray="2,4"/><line x1="140" y1="0" x2="140" y2="220" stroke-dasharray="2,4"/><line x1="180" y1="0" x2="180" y2="220" stroke-dasharray="2,4"/>
+
+                            </g>
+
+                            <path d="M 60,110 C 60,60 140,60 140,110 C 140,140 160,220 160,220 L 40,220 C 40,220 60,140 60,110 Z" fill="#2d201c" opacity="0.8"/>
+
+                            <circle cx="100" cy="50" r="25" fill="#2d201c" opacity="0.9"/>
+
+                            <text x="100" y="160" fill="#d4af37" font-size="12" text-anchor="middle" class="font-serif-tc font-bold opacity-70">瑞雲尚未掛牌...</text>
+
+                        </svg>
+
+                        <!-- CH2: 艷冠群芳 -->
+                        <svg id="svg-ch2" class="hidden w-full h-full object-contain drop-shadow-[0_8px_12px_rgba(212,175,55,0.3)] transition-opacity duration-300" preserveAspectRatio="xMidYMax meet" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+
+                            <path d="M 30,120 C 10,70 30,20 100,20 C 170,20 190,70 170,120 Z" fill="#1b1517"/>
+
+                            <circle cx="100" cy="30" r="28" fill="#1b1517"/> <ellipse cx="65" cy="45" rx="15" ry="20" fill="#1b1517" transform="rotate(-15, 65, 45)"/> <ellipse cx="135" cy="45" rx="15" ry="20" fill="#1b1517" transform="rotate(15, 135, 45)"/>
+
+                            <path d="M 50,30 L 25,25" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/> <circle cx="25" cy="25" r="4" fill="#d4af37"/>
+
+                            <path d="M 150,30 L 175,25" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/> <circle cx="175" cy="25" r="4" fill="#d4af37"/>
+
+                            <path d="M 85,110 L 115,110 L 115,135 L 85,135 Z" fill="#fff0e8"/>
+
+                            <path d="M 45,140 C 45,140 70,130 100,130 C 130,130 155,140 155,140 L 170,220 L 30,220 Z" fill="#b0132b"/>
+
+                            <path d="M 100,130 L 70,175 L 55,175 Z" fill="#fff"/> <path d="M 100,130 L 130,175 L 145,175 Z" fill="#fff"/> <path d="M 75,135 L 100,175 L 125,135" fill="none" stroke="#ffd43b" stroke-width="2"/>
+
+                            <path d="M 60,80 C 60,50 140,50 140,80 C 140,115 60,115 60,80 Z" fill="#fff0e8"/>
+
+                            <path d="M 72,66 Q 82,58 90,67" fill="none" stroke="#5c4033" stroke-width="2" stroke-linecap="round"/> <path d="M 128,66 Q 118,58 110,67" fill="none" stroke="#5c4033" stroke-width="2" stroke-linecap="round"/>
+
+                            <path d="M 70,74 C 74,70 88,70 92,75" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/> <path d="M 73,76 C 73,86 89,86 89,76" fill="#fff"/> <ellipse cx="81" cy="78" rx="6" ry="7" fill="#4d2c18"/>
+
+                            <path d="M 130,74 C 126,70 112,70 108,75" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/> <path d="M 127,76 C 127,86 111,86 111,76" fill="#fff"/> <ellipse cx="119" cy="78" rx="6" ry="7" fill="#4d2c18"/>
+
+                            <circle cx="79" cy="75" r="2.5" fill="#fff"/> <circle cx="117" cy="75" r="2.5" fill="#fff"/>
+
+                            <ellipse cx="73" cy="88" rx="7" ry="3" fill="#ff8787" opacity="0.6"/> <ellipse cx="127" cy="88" rx="7" ry="3" fill="#ff8787" opacity="0.6"/>
+
+                            <path d="M 94,98 Q 100,103 106,98" fill="none" stroke="#c92a2a" stroke-width="2" stroke-linecap="round"/>
+
+                        </svg>
+
+                        <!-- CH3 & 4: 蒙塵粗婢 -->
+                        <svg id="svg-ch3" class="hidden w-full h-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.5)] transition-opacity duration-300" preserveAspectRatio="xMidYMax meet" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+
+                            <path d="M 30,120 C 15,65 30,25 100,25 C 170,25 185,65 170,120 Z" fill="#2d2526"/>
+
+                            <path d="M 52,90 Q 35,130 38,155" fill="none" stroke="#2d2526" stroke-width="2.5"/> <path d="M 148,90 Q 165,130 162,155" fill="none" stroke="#2d2526" stroke-width="2.5"/>
+
+                            <path d="M 85,110 L 115,110 L 115,135 L 85,135 Z" fill="#e8d5cc"/>
+
+                            <path d="M 45,140 C 45,140 70,135 100,135 C 130,135 155,140 155,140 L 165,220 L 35,220 Z" fill="#4e4844"/>
+
+                            <path d="M 60,80 C 60,50 140,50 140,80 C 140,115 60,115 60,80 Z" fill="#e8d5cc"/>
+
+                            <path d="M 70,77 C 74,74 88,74 92,78" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/> <ellipse cx="81" cy="80" rx="5" ry="6" fill="#3a251e"/>
+
+                            <path d="M 130,77 C 126,74 112,74 108,78" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/> <ellipse cx="119" cy="80" rx="5" ry="6" fill="#3a251e"/>
+
+                            <g id="ink-layer-maid" opacity="0.9">
+
+                                <path d="M 95,48 C 91,52 90,62 102,59 C 110,56 105,48 95,48 Z" fill="#141012"/>
+
+                                <path d="M 85,55 Q 68,85 82,98 Q 98,85 85,55 Z" fill="#1a1517" opacity="0.85"/>
+
+                                <path d="M 115,55 Q 132,85 118,98 Q 102,85 115,55 Z" fill="#1a1517" opacity="0.8"/>
+
+                            </g>
+
+                        </svg>
+
+                        <!-- CH5 & 6: 溫婉嬌妻 -->
+                        <svg id="svg-ch5" class="hidden w-full h-full object-contain drop-shadow-[0_8px_12px_rgba(157,78,221,0.3)] transition-opacity duration-300" preserveAspectRatio="xMidYMax meet" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+
+                            <path d="M 30,120 C 15,68 35,22 100,22 C 165,22 185,68 170,120 Z" fill="#201a1c"/>
+
+                            <circle cx="100" cy="118" r="16" fill="#201a1c"/>
+
+                            <path d="M 75,115 L 125,122" stroke="#40916c" stroke-width="3" stroke-linecap="round"/>
+
+                            <path d="M 85,110 L 115,110 L 115,135 L 85,135 Z" fill="#fff3ed"/>
+
+                            <path d="M 45,140 C 45,140 70,132 100,132 C 130,132 155,140 155,140 L 168,220 L 32,220 Z" fill="#7b2cbf"/>
+
+                            <path d="M 80,132 L 100,165 L 120,132" fill="none" stroke="#f4a261" stroke-width="2.5"/>
+
+                            <path d="M 60,80 C 60,50 140,50 140,80 C 140,115 60,115 60,80 Z" fill="#fff3ed"/>
+
+                            <path d="M 70,74 C 74,71 88,71 92,75" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/> <ellipse cx="81" cy="78" rx="6" ry="7" fill="#5a189a"/>
+
+                            <path d="M 130,74 C 126,71 112,71 108,75" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/> <ellipse cx="119" cy="78" rx="6" ry="7" fill="#5a189a"/>
+
+                            <circle cx="79" cy="75" r="2" fill="#fff"/> <circle cx="117" cy="75" r="2" fill="#fff"/>
+
+                            <path d="M 94,97 Q 100,103 106,97" fill="none" stroke="#d90429" stroke-width="2" stroke-linecap="round"/>
+
+                            <g id="ink-layer-wife" opacity="0.85" class="transition-opacity duration-[2000ms]">
+
+                                <path d="M 95,48 C 91,52 90,62 102,59 C 110,56 105,48 95,48 Z" fill="#141012"/>
+
+                                <path d="M 85,55 Q 68,85 82,98 Q 98,85 85,55 Z" fill="#1a1517"/>
+
+                                <path d="M 115,55 Q 132,85 118,98 Q 102,85 115,55 Z" fill="#1a1517"/>
+
+                            </g>
+
+                        </svg>
+
+                        <div id="floating-numbers-container" class="absolute inset-0 z-40 pointer-events-none overflow-hidden"></div>
+
+                    </div>
+
+                    <div id="flash-overlay" class="absolute inset-0 bg-white z-20 pointer-events-none transition-opacity duration-300 opacity-0"></div>
+
+                </div>
+
+                <!-- 劇本對話框 -->
+
+                <div class="flex-[1] retro-window p-2 md:p-3 bg-stone-900 border-2 border-amber-600 flex flex-col relative overflow-hidden shadow-lg">
+
+                    <div class="absolute -top-2 left-3 bg-amber-800 text-amber-50 border border-amber-400 px-2 py-0 text-[10px] md:text-xs rounded font-bold font-serif-tc shadow-md" id="speaker-lbl">系統廣播</div>
+
+                    <div class="pt-2 text-amber-100 font-serif-tc text-[11px] md:text-sm leading-relaxed tracking-wider flex-1 overflow-y-auto" id="dialogue-text">
+
+                        歡迎來到《藍橋風雲：擴充完整版》。本傳為期三年，您將經歷商賈競爭、青樓傾軋、與科舉奮鬥。第一章：瑞雲掛牌在即，請先在餘杭街頭打聽情報、累積資本。
+
+                    </div>
+
+                    <div id="choice-list" class="grid grid-cols-1 md:grid-cols-2 gap-1.5 mt-1 shrink-0">
+
+                        <button onclick="startGameExpansion()" class="w-full text-center py-1.5 bg-amber-700 hover:bg-amber-600 text-[10px] md:text-xs text-white border border-amber-400 font-serif-tc shadow-md col-span-2">
+
+                            🚀 正式開始才子征途
+
+                        </button>
+
+                    </div>
+
+                    <div class="absolute bottom-1.5 right-2 text-amber-400 font-pixel text-[10px] blink-arrow">▼</div>
+
+                </div>
+
+            </section>
+
+            <!-- 右側：動態行程與監視器 -->
+
+            <aside class="w-[25%] h-full flex flex-col gap-2 shrink-0">
+
+                <div class="retro-panel-inner p-1.5 md:p-2 rounded flex flex-col shadow-md shrink-0 border-t-4 border-[#5d4037]">
+
+                    <h3 class="text-[9px] md:text-[10px] font-bold font-serif-tc text-[#4e342e] mb-1 flex justify-between items-center px-1">
+
+                        <span><i class="fa-solid fa-user-tie text-amber-700"></i> 賀生行動監視</span>
+
+                        <span id="monitor-status" class="text-[8px] text-amber-800 font-mono">IDLE</span>
+
+                    </h3>
+
+                    <div class="w-full aspect-[4/3] bg-[#1a1715] border-2 border-[#5d4037] rounded flex items-center justify-center relative overflow-hidden monitor-crt shadow-inner">
+
+                        <div id="monitor-rec" class="absolute top-1 left-1 w-1.5 h-1.5 rounded-full bg-red-600 hidden"></div>
+
+                        <!-- 【重構】監視器容器：SVG永久兜底在下層，圖片在上層覆蓋 -->
+                        <div class="w-[80%] h-[80%] relative flex items-center justify-center">
+                            <!-- SVG 永久兜底層（永遠顯示，不會空白） -->
+                            <div id="monitor-svg-container" class="absolute inset-0 z-0 text-amber-500 opacity-80 flex items-center justify-center">
+                                <!-- 預先填充待機畫面，避免初始空白 -->
+                                <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]">
+                                    <path d="M 20,80 Q 50,20 80,80 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+                                    <line x1="50" y1="80" x2="50" y2="45" stroke="currentColor" stroke-width="2"/>
+                                    <text x="50" y="55" fill="currentColor" font-size="10" text-anchor="middle">待命</text>
+                                </svg>
+                            </div>
+                            <!-- 自訂圖片覆蓋層（加載成功才淡入，失敗自動透明露出SVG） -->
+                            <img id="monitor-custom-image" 
+                                 src="" 
+                                 alt="監視器畫面" 
+                                 class="absolute inset-0 z-10 w-full h-full object-cover rounded opacity-0 transition-opacity duration-300 pointer-events-none"
+                                 onerror="this.style.opacity = '0'">
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="retro-panel-inner p-1.5 md:p-2 rounded flex-1 flex flex-col shadow-md">
+
+                    <h2 class="text-[10px] md:text-xs font-bold font-serif-tc border-b border-[#8d6e63]/30 pb-1 mb-1.5 flex items-center justify-between text-[#4e342e] shrink-0">
+
+                        <span><i class="fa-solid fa-calendar-days mr-1"></i> 三旬行程規劃</span>
+
+                    </h2>
+
+                    <div class="flex-1 flex flex-col justify-evenly gap-1 overflow-hidden" id="schedule-container">
+
+                        <div class="bg-[#ebdcb9] border border-[#8d6e63]/40 p-1 rounded relative">
+
+                            <label class="text-[8px] md:text-[9px] text-stone-500 font-bold block mb-0.5">上旬</label>
+
+                            <select id="slot-1" class="w-full bg-[#fbf8ee] border border-[#8d6e63]/50 text-[9px] md:text-[10px] p-0.5 rounded focus:outline-none truncate"></select>
+
+                        </div>
+
+                        <div class="bg-[#ebdcb9] border border-[#8d6e63]/40 p-1 rounded relative">
+
+                            <label class="text-[8px] md:text-[9px] text-stone-500 font-bold block mb-0.5">中旬</label>
+
+                            <select id="slot-2" class="w-full bg-[#fbf8ee] border border-[#8d6e63]/50 text-[9px] md:text-[10px] p-0.5 rounded focus:outline-none truncate"></select>
+
+                        </div>
+
+                        <div class="bg-[#ebdcb9] border border-[#8d6e63]/40 p-1 rounded relative">
+
+                            <label class="text-[8px] md:text-[9px] text-stone-500 font-bold block mb-0.5">下旬</label>
+
+                            <select id="slot-3" class="w-full bg-[#fbf8ee] border border-[#8d6e63]/50 text-[9px] md:text-[10px] p-0.5 rounded focus:outline-none truncate"></select>
+
+                        </div>
+
+                    </div>
+
+                    <button id="btn-run-schedule" onclick="startMonthlySchedule()" class="mt-2 w-full bg-[#795548] hover:bg-[#5d4037] text-white font-serif-tc font-bold text-[10px] md:text-[11px] py-1.5 rounded shadow shrink-0 flex items-center justify-center gap-1 transition-colors border border-amber-900" disabled>
+
+                        <i class="fa-solid fa-lock text-stone-400"></i> 請先開始遊戲
+
+                    </button>
+
+                </div>
+
+                <div class="retro-panel-inner p-1.5 md:p-2 rounded shrink-0 shadow-md">
+
+                    <h3 class="text-[9px] md:text-[10px] font-bold font-serif-tc text-[#4e342e] border-b border-[#8d6e63]/20 pb-0.5 mb-1.5"><i class="fa-solid fa-handshake text-amber-700"></i> 人脈與互動</h3>
+
+                    <div class="flex flex-col gap-1.5" id="quick-actions-container">
+
+                        <button class="bg-[#fcfaf2] text-[9px] md:text-[10px] font-bold py-1 px-1.5 rounded border border-[#8d6e63]/40 text-stone-400 w-full truncate cursor-not-allowed">等待解鎖...</button>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </main>
+
+    </div>
+
+    <!-- 仙水洗臉 Mini Game 彈窗 -->
+    <div id="modal-wash" class="hidden fixed inset-0 z-[150] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 w-full h-full">
+
+        <div class="bg-[#f1ebd9] border-4 border-[#d4af37] rounded-lg w-full max-w-sm flex flex-col p-4 shadow-2xl relative">
+
+            <h3 class="text-lg md:text-xl font-serif-tc text-[#4a3321] font-black border-b-2 border-[#8b6540]/40 pb-1 mb-2 text-center shrink-0">🌊 仙水浣面 ‧ 點除墨咒</h3>
+
+            <p class="text-[10px] md:text-xs text-[#5d4037] mb-3 font-serif-tc leading-relaxed text-center bg-amber-50 p-2 rounded border border-amber-900/10 shrink-0">請在畫布上按住滑鼠拖動擦拭，洗盡瑞雲額前墨印！</p>
+
+            <div class="relative w-full aspect-[4/3] bg-gradient-to-b from-[#f5e6d3] to-[#e8d5cc] border-2 border-[#8b6540] rounded overflow-hidden shrink-0">
+                <img id="wash-bg-image" 
+                     src="" 
+                     alt="瑞雲原貌" 
+                     class="absolute inset-0 w-full h-full object-cover z-0 opacity-100 transition-opacity duration-500"
+                     onerror="this.style.opacity='0.3'">
+                
+                <div id="wash-loading" class="absolute inset-0 z-5 flex items-center justify-center text-[#8b6540] text-xs font-serif-tc">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>仙水凝聚中...
+                </div>
+                
+                <canvas id="wash-canvas" 
+                        class="absolute inset-0 z-10 w-full h-full cursor-crosshair" 
+                        width="300" 
+                        height="225"></canvas>
+            </div>
+
+            <div class="mt-3 shrink-0">
+
+                <div class="flex justify-between text-[10px] md:text-xs font-bold text-[#5d4037] mb-1">
+                    <span>消除進度</span>
+                    <span id="wash-percent" class="text-amber-80">0%</span>
+                </div>
+
+                <div class="pixel-bar-bg rounded-sm overflow-hidden h-[12px]">
+                    <div id="bar-wash" class="pixel-bar-fill bg-gradient-to-r from-blue-500 to-emerald-400" style="width: 0%;"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // ==================== 自訂圖床配置區 ====================
+        const IMAGE_BEDS = {
+            titleCover: "https://i.postimg.cc/dQNZH12k/you-xi-feng-mian-tu.jpg",
+            mainScenes: {
+                1: "https://i.postimg.cc/L5J5KttR/zhu-lian-ban-yan.jpg", 2: "https://i.postimg.cc/T1BwRK0R/yan-guan-qun-fang.jpg", 3: "https://i.postimg.cc/90D05dd5/xian-ren-zhi-lu.jpg", 4: "https://i.postimg.cc/MHnH27y4/qian-jin-shu-jiao.jpg", 5: "https://i.postimg.cc/kG2G3QQB/jie-fa-xiang-shou.jpg", 6: "https://i.postimg.cc/Y0v0K667/gu-su-yan-yu.jpg"
+            },
+            endings: {
+                 true: "https://i.postimg.cc/gk9LF7T5/zhuang-yuan-ji-di.jpg", dead: "https://i.postimg.cc/KjTK37Rn/xiang-xiao-yu-yun.jpg", timeout: "https://i.postimg.cc/ZYvvQmVB/kong-liu-yi-juan.jpg"
+            },
+            chapterTransitions: {
+                 1: "https://i.postimg.cc/8zYV92yB/Morning-street-scene-Jiangnan-re-202607191638.jpg", 2: "https://i.postimg.cc/v87bTSBF/Brothel-night-scene-panorama-202607191638.jpg", 3: "https://i.postimg.cc/G3PdtSpj/Brothel-backyard-stormy-night-li-202607191638.jpg", 4: "https://i.postimg.cc/T3sXFzkj/Porters-carrying-goods-at-sunset-202607191638.jpg", 5: "https://i.postimg.cc/9XPC0Nfx/Farmer-s-courtyard-wedding-night-202607191638.jpg", 6: "https://i.postimg.cc/CMCS56K6/Misty-rain-Suzhou-water-town-202607191639.jpg"
+            },
+            monitorScenes: {
+                1: { idle: "https://i.postimg.cc/8cfvBQnZ/Ancient-Chinese-scholar-in-study-202607191642.jpg", intel: "https://i.postimg.cc/tJn6tQm5/Scholar-eavesdropping-in-teahouse-202607191642.jpg", work: "https://i.postimg.cc/NF2X7qPC/Hand-copying-book-ancient-China-202607191642.jpg", study: "https://i.postimg.cc/6TsvMjkN/Scholar-reading-by-candlelight-202607191642.jpg", rest: "https://i.postimg.cc/ZnvNFtDx/Scholar-drinking-tea-street-202607191642.jpg", bribe: "https://i.postimg.cc/7bv2KspF/Scholar-hands-silver-to-maid-202607191642.jpg" },
+                2: { idle: "https://i.postimg.cc/Z5wrSc3Y/Courtesan-house-waiting-room-tea-202607191643.jpg", visit: "https://i.postimg.cc/g2gvWDRJ/Woman-playing-zither-behind-curtain-202607191644.jpg", debate: "https://i.postimg.cc/Mp6yN4cT/Scholar-arguing-with-rich-man-202607191644.jpg", work: "https://i.postimg.cc/VkKj8RM5/Scholar-writing-letter-ancient-C-202607191644.jpg", rest: "https://i.postimg.cc/x16K2RHd/Scholar-resting-recliner-brothel-202607191644.jpg", talk: "https://i.postimg.cc/13mp2Tgh/Scholar-and-woman-talking-curtain-202607191644.jpg", gift: "https://i.postimg.cc/zGxnrjWz/Scholar-presenting-scroll-painti-202607191644.jpg" },
+                3: { idle: "https://i.postimg.cc/63vZNh68/Scholar-crouching-outside-woodshed-202607201403.jpg", sneak: "https://i.postimg.cc/BbfKZ1tj/Scholar-climbing-high-wall-202607201404.jpg", work: "https://i.postimg.cc/VvPCsb5D/Coolie-carrying-heavy-load-202607201404.jpg", intel: "https://i.postimg.cc/yxCZ6SWf/Scholar-passing-note-to-maid-202607201404.jpg", rest: "https://i.postimg.cc/gJZhPKcX/Ancient-Chinese-scholar-exhauste-202607201405.jpg", spy: "https://i.postimg.cc/8cg6krsC/Young-scholar-hiding-behind-tree-202607201405.jpg" },
+                4: { idle: "https://i.postimg.cc/63vZNh68/Scholar-crouching-outside-woodshed-202607201403.jpg", sneak: "https://i.postimg.cc/BbfKZ1tj/Scholar-climbing-high-wall-202607201404.jpg", work: "https://i.postimg.cc/VvPCsb5D/Coolie-carrying-heavy-load-202607201404.jpg", intel: "https://i.postimg.cc/yxCZ6SWf/Scholar-passing-note-to-maid-202607201404.jpg", rest: "https://i.postimg.cc/gJZhPKcX/Ancient-Chinese-scholar-exhauste-202607201405.jpg", spy: "https://i.postimg.cc/8cg6krsC/Young-scholar-hiding-behind-tree-202607201405.jpg" },
+                5: { idle: "https://i.postimg.cc/brftY2dN/Scholar-watching-wife-weave-cloth-202607201405.jpg", visit: "https://i.postimg.cc/fLf9LRd5/Scholar-and-wife-admiring-flowers-202607201415.jpg", study: "https://i.postimg.cc/3RTGYvk1/Scholar-studying-ancient-Chinese-202607201415.jpg", work: "https://i.postimg.cc/Hx9yxkM5/Young-scholar-copying-books-202607201415.jpg", rest: "https://i.postimg.cc/Hx9yxkM2/Scholar-and-wife-strolling-count-202607201415.jpg", care: "https://i.postimg.cc/7PB5QcnP/Scholar-applying-makeup-to-wife-202607201415.jpg", friend: "https://i.postimg.cc/wvQmvjJ8/Two-scholars-chatting-in-teahouse-202607201415.jpg" },
+                6: { idle: "https://i.postimg.cc/brftY2dN/Scholar-watching-wife-weave-cloth-202607201405.jpg", visit: "https://i.postimg.cc/fLf9LRd5/Scholar-and-wife-admiring-flowers-202607201415.jpg", study: "https://i.postimg.cc/3RTGYvk1/Scholar-studying-ancient-Chinese-202607201415.jpg", work: "https://i.postimg.cc/Hx9yxkM5/Young-scholar-copying-books-202607201415.jpg", rest: "https://i.postimg.cc/Hx9yxkM2/Scholar-and-wife-strolling-count-202607201415.jpg", care: "https://i.postimg.cc/7PB5QcnP/Scholar-applying-makeup-to-wife-202607201415.jpg", friend: "https://i.postimg.cc/wvQmvjJ8/Two-scholars-chatting-in-teahouse-202607201415.jpg" },
+            },
+            washGameBackground: "https://i.postimg.cc/26GqQjwm/xian-shui-xi-lian-xiao-you-xi-di-tu.jpg"
+        };
+
+        // --- 音效引擎 ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let isMuted = false;
+
+        function playSound(type) {
+            if (isMuted) return;
+            try {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                if (type === 'click') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+                } else if (type === 'statUp') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(440, audioCtx.currentTime); osc.frequency.setValueAtTime(554, audioCtx.currentTime + 0.08); osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.16);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+                } else if (type === 'alert') {
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(220, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(110, audioCtx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'levelUp') {
+                    const now = audioCtx.currentTime; osc.type = 'square'; const scale = [523, 659, 784, 1046];
+                    scale.forEach((freq, idx) => { osc.frequency.setValueAtTime(freq, now + idx * 0.08); });
+                    gain.gain.setValueAtTime(0.08, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(); osc.stop(now + 0.5);
+                }
+            } catch (e) {}
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted; const icon = document.getElementById('sound-icon');
+            if (isMuted) { icon.className = 'fa-solid fa-volume-xmark'; addLiveLog('音效關閉'); } 
+            else { icon.className = 'fa-solid fa-volume-high'; playSound('click'); addLiveLog('音效開啟'); }
+        }
+
+        function dismissTitleScreen() {
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            playSound('levelUp');
+            const titleScreen = document.getElementById('title-screen');
+            titleScreen.classList.add('opacity-0');
+            setTimeout(() => { titleScreen.classList.add('hidden'); }, 1000);
+        }
+
+        // --- 章節過場動畫 ---
+        function playChapterTransition(chapterNum, onComplete) {
+            const transitionEl = document.getElementById('chapter-transition');
+            const bgImg = document.getElementById('transition-bg-image');
+            const subtitleEl = document.getElementById('transition-subtitle');
+            const titleEl = document.getElementById('transition-title');
+            const imgSrc = IMAGE_BEDS.chapterTransitions?.[chapterNum];
+
+            if (!imgSrc) {
+                if (onComplete) onComplete();
+                return;
+            }
+
+            const chapterTitles = {
+                1: { sub: "第一章", title: "初試啼聲" },
+                2: { sub: "第二章", title: "才辯群雄" },
+                3: { sub: "第三章", title: "仙人指路" },
+                4: { sub: "第四章", title: "千金贖嬌" },
+                5: { sub: "第五章", title: "結髮相守" },
+                6: { sub: "第六章", title: "姑蘇煙雨" }
+            };
+
+            const info = chapterTitles[chapterNum];
+            subtitleEl.innerText = info.sub;
+            titleEl.innerText = info.title;
+            bgImg.src = imgSrc;
+
+            subtitleEl.style.opacity = 0;
+            titleEl.style.opacity = 0;
+            transitionEl.querySelector('.w-24').style.opacity = 0;
+
+            transitionEl.classList.remove('pointer-events-none');
+            transitionEl.style.opacity = 1;
+
+            setTimeout(() => { subtitleEl.style.opacity = 1; }, 300);
+            setTimeout(() => { titleEl.style.opacity = 1; }, 500);
+            setTimeout(() => { transitionEl.querySelector('.w-24').style.opacity = 1; }, 700);
+
+            setTimeout(() => {
+                subtitleEl.style.opacity = 0;
+                titleEl.style.opacity = 0;
+                transitionEl.querySelector('.w-24').style.opacity = 0;
+                transitionEl.style.opacity = 0;
+
+                setTimeout(() => {
+                    transitionEl.classList.add('pointer-events-none');
+                    if (onComplete) onComplete();
+                }, 700);
+            }, 2500);
+        }
+
+        // --- 變數與 DOM 綁定 ---
+        let ch = 0, year = 1, month = 1, term = 0;
+        let gold = 1.0, fatigue = 0, rep = 10, culture = 60, energy = 100, love = 0, ink = 0;
+        const REDEEM_PRICE = 5.0; 
+
+        const ui = {
+            date: document.getElementById('game-date-display'),
+            gold: document.getElementById('player-gold'),
+            badge: document.getElementById('badge-stage'),
+            lbl: document.getElementById('speaker-lbl'),
+            text: document.getElementById('dialogue-text'),
+            choices: document.getElementById('choice-list'),
+            feed: document.getElementById('live-feed'),
+            flash: document.getElementById('flash-overlay'),
+            slots: [document.getElementById('slot-1'), document.getElementById('slot-2'), document.getElementById('slot-3')],
+            btnRun: document.getElementById('btn-run-schedule'),
+            quickActions: document.getElementById('quick-actions-container'),
+            monStatus: document.getElementById('monitor-status'),
+            monRec: document.getElementById('monitor-rec'),
+            monSvg: document.getElementById('monitor-svg-container'),
+            monImg: document.getElementById('monitor-custom-image')
+        };
+
+        // 像素SVG素材庫（鍵名與行動參數一一對應，雙重校驗）
+        const pSVGs = {
+            idle: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]"><path d="M 20,80 Q 50,20 80,80 Z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="50" y1="80" x2="50" y2="45" stroke="currentColor" stroke-width="2"/><text x="50" y="55" fill="currentColor" font-size="10" text-anchor="middle">待命</text></svg>`,
+            study: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]"><rect x="15" y="75" width="70" height="10" fill="currentColor" opacity="0.8"/><path d="M 25,75 L 75,75 L 65,55 L 35,55 Z" fill="currentColor" opacity="0.4"/><rect x="80" y="45" width="4" height="30" fill="currentColor"/><circle cx="82" cy="40" r="3" fill="#fff" class="blink-fast"/><text x="50" y="45" fill="currentColor" font-size="12" text-anchor="middle" font-weight="bold">苦讀</text></svg>`,
+            work: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]"><ellipse cx="50" cy="75" rx="25" ry="12" fill="currentColor" opacity="0.3"/><path d="M 65,35 L 45,65" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M 45,65 L 40,75" stroke="currentColor" stroke-width="2"/><circle cx="40" cy="75" r="2" fill="currentColor" class="blink-fast"/><text x="50" y="30" fill="currentColor" font-size="12" text-anchor="middle" font-weight="bold">抄寫</text></svg>`,
+            visit: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]"><rect x="75" y="20" width="15" height="70" fill="currentColor" opacity="0.7"/><rect x="25" y="30" width="15" height="20" fill="currentColor" stroke="currentColor" stroke-width="2" opacity="0.9"/><path d="M 15,30 L 50,30" stroke="currentColor" stroke-width="2"/><circle cx="32.5" cy="40" r="5" fill="#fff" class="blink-fast"/><text x="45" y="70" fill="currentColor" font-size="12" text-anchor="middle" font-weight="bold">拜訪</text></svg>`,
+            rest: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]"><path d="M 35,55 C 35,80 65,80 65,55 Z" fill="currentColor" opacity="0.6"/><path d="M 40,45 Q 50,25 60,15" fill="none" stroke="currentColor" stroke-width="2" class="blink-fast" stroke-dasharray="4"/><text x="50" y="85" fill="currentColor" font-size="12" text-anchor="middle" font-weight="bold">休養</text></svg>`,
+            intel: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]"><circle cx="50" cy="45" r="20" fill="none" stroke="currentColor" stroke-width="4"/><line x1="64" y1="59" x2="80" y2="75" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="45" r="5" fill="currentColor" class="blink-fast"/><text x="25" y="80" fill="currentColor" font-size="10" text-anchor="middle" font-weight="bold">打探</text></svg>`,
+            debate: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"><path d="M 20,60 C 20,30 50,20 50,60 Z" fill="currentColor" opacity="0.6"/><path d="M 80,60 C 80,30 50,20 50,60 Z" fill="currentColor" opacity="0.3"/><line x1="50" y1="60" x2="50" y2="90" stroke="currentColor" stroke-width="3"/><path d="M 30,30 Q 40,20 50,30" fill="none" stroke="#fff" stroke-width="2" class="blink-fast"/><text x="50" y="85" fill="currentColor" font-size="12" text-anchor="middle" font-weight="bold">舌戰</text></svg>`,
+            sneak: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]"><path d="M 50,20 C 30,20 20,50 30,80 L 70,80 C 80,50 70,20 50,20 Z" fill="currentColor" opacity="0.8"/><circle cx="40" cy="40" r="5" fill="#000"/><circle cx="60" cy="40" r="5" fill="#000"/><circle cx="42" cy="40" r="2" fill="#fff" class="blink-fast"/><text x="50" y="70" fill="#000" font-size="10" text-anchor="middle" font-weight="bold">潛入</text></svg>`,
+            bribe: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(234,179,8,0.8)]"><circle cx="50" cy="50" r="20" fill="currentColor" opacity="0.7"/><text x="50" y="55" fill="#000" font-size="14" text-anchor="middle" font-weight="bold">錢</text><path d="M 30,70 Q 50,80 70,70" fill="none" stroke="currentColor" stroke-width="2" class="blink-fast"/><text x="50" y="90" fill="currentColor" font-size="10" text-anchor="middle" font-weight="bold">行賄</text></svg>`,
+            talk: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]"><path d="M 20,40 Q 20,20 50,20 Q 80,20 80,40 Q 80,55 65,55 L 55,70 L 50,55 L 35,55 Q 20,55 20,40 Z" fill="currentColor" opacity="0.7"/><text x="50" y="42" fill="#fff" font-size="10" text-anchor="middle" class="blink-fast">♡</text><text x="50" y="90" fill="currentColor" font-size="10" text-anchor="middle" font-weight="bold">交談</text></svg>`,
+            gift: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]"><rect x="25" y="40" width="50" height="40" fill="currentColor" opacity="0.7"/><rect x="47" y="30" width="6" height="50" fill="#fff"/><rect x="20" y="57" width="60" height="6" fill="#fff"/><path d="M 50,30 Q 35,20 30,30 Q 40,35 50,30" fill="#fff" class="blink-fast"/><text x="50" y="90" fill="currentColor" font-size="10" text-anchor="middle" font-weight="bold">贈禮</text></svg>`,
+            spy: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(15,23,42,0.8)]"><path d="M 30,50 L 70,50 L 60,65 L 40,65 Z" fill="currentColor" opacity="0.8"/><circle cx="50" cy="40" r="15" fill="currentColor"/><circle cx="45" cy="38" r="3" fill="#fff" class="blink-fast"/><circle cx="55" cy="38" r="3" fill="#fff" class="blink-fast"/><text x="50" y="85" fill="currentColor" font-size="10" text-anchor="middle" font-weight="bold">偵查</text></svg>`,
+            care: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(217,70,239,0.8)]"><path d="M 50,25 Q 30,40 30,55 Q 30,75 50,85 Q 70,75 70,55 Q 70,40 50,25 Z" fill="currentColor" opacity="0.6"/><path d="M 50,35 Q 40,45 40,55 Q 40,70 50,78 Q 60,70 60,55 Q 60,45 50,35 Z" fill="#fff" opacity="0.8" class="blink-fast"/><text x="50" y="95" fill="currentColor" font-size="10" text-anchor="middle" font-weight="bold">呵護</text></svg>`,
+            friend: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]"><circle cx="35" cy="45" r="12" fill="currentColor" opacity="0.8"/><circle cx="65" cy="45" r="12" fill="currentColor" opacity="0.6"/><path d="M 25,65 Q 35,80 45,65" fill="none" stroke="currentColor" stroke-width="3"/><path d="M 55,65 Q 65,80 75,65" fill="none" stroke="currentColor" stroke-width="3"/><path d="M 40,50 L 60,50" stroke="#fff" stroke-width="2" class="blink-fast"/><text x="50" y="92" fill="currentColor" font-size="10" text-anchor="middle" font-weight="bold">會友</text></svg>`
+        };
+
+        // ================================================================
+        // 【核心重寫】監視器畫面切換邏輯
+        // 架構：SVG永久兜底 + 圖片層覆蓋，絕對不會出現空白
+        // ================================================================
+        function setProtagAction(action) {
+            // 1. 狀態文字與錄影燈更新
+            if (action === 'idle') {
+                ui.monStatus.innerText = "IDLE";
+                ui.monStatus.className = "text-[8px] text-amber-800 font-mono";
+                ui.monRec.classList.add('hidden');
+            } else {
+                ui.monStatus.innerText = "ACTION";
+                ui.monStatus.className = "text-[8px] text-red-500 font-mono blink-arrow";
+                ui.monRec.classList.remove('hidden');
+                ui.monRec.classList.add('blink-fast');
+            }
+
+            // 2. 強制渲染SVG兜底畫面（先確保一定有東西顯示）
+            const svgContent = pSVGs.hasOwnProperty(action) ? pSVGs[action] : pSVGs.idle;
+            ui.monSvg.innerHTML = svgContent;
+            ui.monSvg.style.opacity = '0.8';
+
+            // 3. 處理自訂圖片（有就覆蓋，沒有就保持透明露出SVG）
+            const chapterData = IMAGE_BEDS.monitorScenes?.[ch] || IMAGE_BEDS.monitorScenes[1];
+            const customSrc = chapterData?.[action] || "";
+
+            // 先將圖片淡出
+            ui.monImg.style.opacity = '0';
+
+            if (customSrc && customSrc.trim() !== "") {
+                // 有有效圖片：設置src，加載完成後淡入
+                ui.monImg.src = customSrc;
+                ui.monImg.onload = function() {
+                    ui.monImg.style.opacity = '1';
+                };
+            } else {
+                // 無自訂圖片：清空src，保持透明，露出底下SVG
+                ui.monImg.src = "";
+            }
+        }
+
+        // --- 主畫面切換 ---
+        function updateMainSceneImage() {
+            const mainImg = document.getElementById('main-scene-image');
+            const svgMap = {
+                1: document.getElementById('svg-ch1'),
+                2: document.getElementById('svg-ch2'),
+                3: document.getElementById('svg-ch3'),
+                4: document.getElementById('svg-ch3'),
+                5: document.getElementById('svg-ch5'),
+                6: document.getElementById('svg-ch5')
+            };
+
+            Object.values(svgMap).forEach(svg => svg.classList.add('hidden'));
+
+            const customSrc = IMAGE_BEDS.mainScenes[ch];
+            if (customSrc) {
+                mainImg.src = customSrc;
+                mainImg.classList.remove('hidden');
+            } else {
+                mainImg.classList.add('hidden');
+                if (svgMap[ch]) svgMap[ch].classList.remove('hidden');
+            }
+        }
+
+        // --- 結局畫面 ---
+        function updateEndingImage(endingType) {
+            const mainImg = document.getElementById('main-scene-image');
+            const endingImgSrc = IMAGE_BEDS.endings?.[endingType.toLowerCase()];
+            
+            if (endingImgSrc) {
+                mainImg.src = endingImgSrc;
+                mainImg.classList.remove('hidden');
+                ['svg-ch1','svg-ch2','svg-ch3','svg-ch5'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            }
+        }
+
+        // --- 共用 UI ---
+        function triggerFloatUp(statName, val) {
+            const container = document.getElementById('floating-numbers-container'), el = document.createElement('div');
+            el.className = 'absolute text-[10px] md:text-xs font-bold tracking-wider floating-stat z-50';
+            el.innerHTML = `${statName} ${val > 0 ? '+' : ''}${val}`;
+            el.classList.add(val > 0 ? (statName.includes('疲勞') || statName.includes('墨') ? 'text-red-600' : 'text-emerald-500') : 'text-red-500');
+            el.style.left = `${30 + Math.random() * 50}%`; el.style.top = `${20 + Math.random() * 50}%`;
+            container.appendChild(el); setTimeout(() => el.remove(), 1200); playSound('statUp');
+        }
+
+        function addLiveLog(text) {
+            const entry = document.createElement('div'); entry.innerText = `> ${text}`;
+            ui.feed.appendChild(entry); ui.feed.scrollTop = ui.feed.scrollHeight;
+        }
+
+        function flashScreen() {
+            ui.flash.classList.remove('opacity-0'); ui.flash.classList.add('opacity-100'); 
+            document.getElementById('viewscreen').classList.add('shake-effect'); playSound('alert');
+            setTimeout(() => { 
+                ui.flash.classList.remove('opacity-100'); ui.flash.classList.add('opacity-0'); 
+                document.getElementById('viewscreen').classList.remove('shake-effect'); 
+            }, 500);
+        }
+
+        function updateStatsUI() {
+            rep = Math.max(0, Math.min(100, rep)); culture = Math.max(0, Math.min(100, culture));
+            energy = Math.max(0, Math.min(100, energy)); fatigue = Math.max(0, Math.min(100, fatigue));
+            love = Math.max(0, Math.min(100, love)); ink = Math.max(0, Math.min(100, ink));
+
+            document.getElementById('val-rep').innerText = rep; document.getElementById('bar-rep').style.width = `${rep}%`;
+            document.getElementById('val-culture').innerText = culture; document.getElementById('bar-culture').style.width = `${culture}%`;
+            document.getElementById('val-energy').innerText = energy; document.getElementById('bar-energy').style.width = `${energy}%`;
+            document.getElementById('val-fatigue').innerText = fatigue; document.getElementById('bar-fatigue').style.width = `${fatigue}%`;
+            document.getElementById('val-love').innerText = love; document.getElementById('bar-love').style.width = `${love}%`;
+            document.getElementById('val-ink').innerText = ink; document.getElementById('bar-ink').style.width = `${ink}%`;
+            ui.gold.innerHTML = `${gold.toFixed(1)} <span class="text-[8px]">兩</span>`;
+
+            const terms = ["上旬", "中旬", "下旬"], months = ["一","二","三","四","五","六","七","八","九","十","十一","十二"];
+            ui.date.innerText = `第${year === 1 ? '一' : (year===2?'二':'三')}年 ‧ ${months[month - 1]}月 ${terms[term]}`;
+
+            const lblLove = document.getElementById('lbl-love'), barLove = document.getElementById('bar-love');
+            if (ch >= 5) {
+                lblLove.innerText = "生死羈絆"; lblLove.className = "text-fuchsia-900";
+                barLove.className = "pixel-bar-fill bg-fuchsia-600 transition-colors";
+            } else {
+                lblLove.innerText = "傾心度"; lblLove.className = "text-purple-900";
+                barLove.className = "pixel-bar-fill bg-purple-500 transition-colors";
+            }
+            const inkBlock = document.getElementById('stat-block-ink');
+            if (ch >= 3 && ch <= 5) { inkBlock.classList.remove('opacity-20', 'pointer-events-none'); } 
+            else { inkBlock.classList.add('opacity-20', 'pointer-events-none'); }
+        }
+
+        // --- 動態選項生成 ---
+        function populateDynamicActions() {
+            let opts = "", quicks = "";
+            if (ch === 1) {
+                opts = `<option value="intel">🏮 街頭打聽 (聲+2 錢-0.1)</option><option value="work">✍ 賣字畫 (錢+1 疲+8)</option><option value="study">📖 閉門苦讀 (才+5 疲+5)</option><option value="rest">🍵 休息 (疲-20)</option>`;
+                quicks = `<button onclick="quickAction('bribe')" class="bg-[#fcfaf2] hover:bg-[#ebdcb9] text-[9px] md:text-[10px] font-bold py-1 px-1.5 rounded border border-[#8d6e63]/40 text-stone-700 w-full truncate">💰 賄賂秋月(丫鬟)</button>`;
+            } else if (ch === 2) {
+                opts = `<option value="visit">🌸 登門拜訪 (好+8 錢-0.5)</option><option value="debate">🗣️ 舌戰富商 (聲+5 疲+10)</option><option value="work">✍ 代抄書信 (錢+1 疲+8)</option><option value="rest">🍵 休息 (疲-20)</option>`;
+                // 第二章人脈互動按鈕，鍵名與SVG嚴格對應
+                quicks = `<button onclick="quickAction('talk')" class="bg-[#fcfaf2] hover:bg-[#ebdcb9] text-[9px] md:text-[10px] font-bold py-1 px-1.5 rounded border border-[#8d6e63]/40 text-stone-700 w-full truncate">💬 溫柔交談</button>
+                          <button onclick="quickAction('gift')" class="bg-[#fcfaf2] hover:bg-[#ebdcb9] text-[9px] md:text-[10px] font-bold py-1 px-1.5 rounded border border-[#8d6e63]/40 text-stone-700 w-full truncate">🎁 贈送字畫</button>`;
+            } else if (ch === 3 || ch === 4) {
+                opts = `<option value="sneak">🥷 潛入後院 (好+10 體+15)</option><option value="work">💦 變賣苦力 (錢+2 疲+15)</option><option value="intel">🏮 聯絡秋月 (好+5 錢-0.2)</option><option value="rest">🍵 休息 (疲-20)</option>`;
+                quicks = `<button onclick="quickAction('spy')" class="bg-[#fcfaf2] hover:bg-[#ebdcb9] text-[9px] md:text-[10px] font-bold py-1 px-1.5 rounded border border-[#8d6e63]/40 text-stone-700 w-full truncate">🕵️ 打探敵對柳媽</button>`;
+            } else if (ch === 5 || ch === 6) {
+                opts = `<option value="visit">🌸 陪伴愛妻 (羈+5 疲-5)</option><option value="study">📚 備考鄉試 (才+8 疲+10)</option><option value="work">✍ 抄書養家 (錢+1.5 疲+8)</option><option value="rest">🍵 郊外散心 (疲-25 體+10)</option>`;
+                quicks = `<button onclick="quickAction('care')" class="bg-[#fcfaf2] hover:bg-[#ebdcb9] text-[9px] md:text-[10px] font-bold py-1 px-1.5 rounded border border-[#8d6e63]/40 text-stone-700 w-full truncate">💖 呵護梳頭</button>
+                          <button onclick="quickAction('friend')" class="bg-[#fcfaf2] hover:bg-[#ebdcb9] text-[9px] md:text-[10px] font-bold py-1 px-1.5 rounded border border-[#8d6e63]/40 text-stone-700 w-full truncate">🤝 拜訪同窗方生</button>`;
+            }
+            ui.slots.forEach(s => s.innerHTML = opts);
+            ui.quickActions.innerHTML = quicks;
+        }
+
+        // --- 遊戲流程 ---
+        function startGameExpansion() {
+            playSound('click');
+            playChapterTransition(1, () => {
+                ch = 1;
+                ui.btnRun.disabled = false; 
+                ui.btnRun.innerHTML = `<i class="fa-solid fa-play text-amber-300"></i> 開始執行`;
+                ui.btnRun.classList.replace('bg-[#795548]', 'bg-[#b0132b]'); 
+                ui.btnRun.classList.replace('hover:bg-[#5d4037]', 'hover:bg-[#8e0e22]');
+                ui.badge.innerText = "第一章：初試啼聲"; 
+                document.getElementById('stage-goal-title').innerText = "■ 累積聲望與資金"; 
+                document.getElementById('stage-goal-desc').innerText = "瑞雲即將掛牌。請努力打聽情報、抄書存錢（目標: 名望>30）。";
+                ui.lbl.innerText = "章節提示"; 
+                ui.text.innerText = "餘杭城內議論紛紛，皆傳蔡媼手下出了個色藝無雙的瑞雲。你身為窮書生，目前連門檻都踏不進，只能先在街頭累積聲望。";
+                ui.choices.innerHTML = "";
+                populateDynamicActions(); 
+                updateStatsUI(); 
+                setProtagAction('idle');
+                updateMainSceneImage();
+            });
+        }
+
+        function startMonthlySchedule() {
+            playSound('click'); 
+            ui.btnRun.disabled = true; 
+            ui.btnRun.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-amber-300"></i> 行動中...`;
+            const plan = [ui.slots[0].value, ui.slots[1].value, ui.slots[2].value];
+            let step = 0; addLiveLog(`--- 執行月度日程 ---`);
+
+            function runStep() {
+                if (step >= 3) {
+                    ui.btnRun.disabled = false; 
+                    ui.btnRun.innerHTML = `<i class="fa-solid fa-play text-amber-300"></i> 開始執行`;
+                    setProtagAction('idle'); 
+                    advanceCalendar(); 
+                    return;
+                }
+                executeAction(plan[step], step + 1); 
+                step++; 
+                setTimeout(runStep, 1500);
+            }
+            runStep();
+        }
+
+        function executeAction(act, slotNum) {
+            const slotName = ["上旬", "中旬", "下旬"][slotNum - 1];
+            // 強制刷新監視器
+            setProtagAction(act);
+
+            if (act === 'intel') {
+                if(gold < 0.1) { playSound('alert'); addLiveLog(`${slotName}: 無錢請客打聽。`); return; }
+                gold -= 0.1; rep += 2; addLiveLog(`${slotName}: 探得情報。`); triggerFloatUp("聲望", 2);
+            } else if (act === 'work') {
+                const w = (ch<3) ? 1 : (ch<5 ? 2.0 : 1.5); 
+                gold += w; fatigue += (ch<3?8:15);
+                addLiveLog(`${slotName}: 辛苦工作，賺取 ${w.toFixed(1)} 兩。`); 
+                triggerFloatUp("資金", w);
+            } else if (act === 'study') {
+                culture += (ch>=5?8:5); fatigue += (ch>=5?10:5); 
+                addLiveLog(`${slotName}: 閉門苦讀。`); 
+                triggerFloatUp("才情", 5);
+            } else if (act === 'visit') {
+                if(gold < 0.5 && ch === 2) { playSound('alert'); addLiveLog(`${slotName}: 資金不足0.5兩，老鴇不讓進！`); return; }
+                if(ch === 2) { gold -= 0.5; love += 8; fatigue += 5; addLiveLog(`${slotName}: 拜訪瑞雲。`); triggerFloatUp("好感", 8); }
+                if(ch >= 5) { love += 5; fatigue = Math.max(0, fatigue-5); addLiveLog(`${slotName}: 陪伴妻子。`); triggerFloatUp("羈絆", 5); }
+            } else if (act === 'debate') {
+                rep += 5; fatigue += 10; addLiveLog(`${slotName}: 舌戰富商！`); triggerFloatUp("聲望", 5);
+            } else if (act === 'sneak') {
+                love += 10; energy += 15; fatigue += 5; addLiveLog(`${slotName}: 潛入後院安慰瑞雲。`); triggerFloatUp("好感", 10);
+            } else if (act === 'rest') {
+                fatigue = Math.max(0, fatigue - 20); energy += 10; addLiveLog(`${slotName}: 休息放鬆。`); triggerFloatUp("疲勞", -20);
+            }
+            updateStatsUI();
+        }
+
+        function advanceCalendar() {
+            term = 0; month++; 
+            if (month > 12) { month = 1; year++; }
+            if (ch === 3 || ch === 4) {
+                energy -= 15; ink += 5; 
+                addLiveLog("結算: 瑞雲在柴房勞役，體力大降！"); 
+                triggerFloatUp("體力", -15);
+                if (energy <= 0) { triggerEnding("Dead"); return; }
+            }
+            checkChapterProgress(); 
+            updateStatsUI();
+        }
+
+        function checkChapterProgress() {
+            if (ch === 1 && rep >= 30) { transitionToCh2(); }
+            else if (ch === 2 && (love >= 40 || month >= 10)) { transitionToCh3(); }
+            else if (ch === 4 && year >= 2 && month >= 6) { triggerEnding("Timeout"); }
+            else if (ch === 5 && love >= 80 && year >= 2 && month >= 10) { transitionToCh6(); }
+        }
+
+        function transitionToCh2() {
+            playChapterTransition(2, () => {
+                ch = 2; 
+                flashScreen(); 
+                playSound('levelUp');
+                ui.badge.innerText = "第二章：才辯群雄"; 
+                document.getElementById('stage-goal-title').innerText = "■ 獲取芳心"; 
+                document.getElementById('stage-goal-desc').innerText = "瑞雲已掛牌！請以舌戰擊退富商，並攢錢拜訪。";
+                ui.lbl.innerText = "劇情事件"; 
+                ui.text.innerText = "賀生名滿餘杭。蔡媼定價十五金令瑞雲見客。鹽商之子王公卿欲奪初夜。你必須展現才情，讓瑞雲對你傾心！";
+                populateDynamicActions();
+                updateMainSceneImage();
+                // 章節切換後強制刷新監視器，確保第二章配置生效
+                setProtagAction('idle');
+            });
+        }
+
+        function transitionToCh3() {
+            playChapterTransition(3, () => {
+                ch = 3; 
+                flashScreen(); 
+                ink = 40;
+                ui.badge.innerText = "第三章：仙人指路"; 
+                ui.badge.className = "text-[8px] md:text-[9px] bg-stone-800 text-white px-1.5 py-0.5 rounded font-normal shrink-0 shadow-sm";
+                document.getElementById('stage-goal-title').innerText = "■ 維持生命線"; 
+                document.getElementById('stage-goal-desc').innerText = "瑞雲毀容，體力暴跌。請透過「潛入」維持她的意志。";
+                ui.lbl.innerText = "劇變！"; 
+                ui.text.innerHTML = "王公卿逼迫接客，一神秘秀才「和生」一指按女額曰：『可惜！』遂去。瑞雲容貌盡毀！蔡媼怒將其貶為粗婢。";
+                ui.choices.innerHTML = `<button onclick="startCh4()" class="w-full py-1.5 rounded bg-emerald-800 text-white border border-emerald-500 font-serif-tc col-span-2">【挺身而出】準備傾家蕩產營救！</button>`;
+                populateDynamicActions();
+                updateMainSceneImage();
+                setProtagAction('idle');
+            });
+        }
+
+        function startCh4() {
+            playChapterTransition(4, () => {
+                playSound('click'); 
+                ch = 4;
+                ui.badge.innerText = "第四章：千金贖嬌"; 
+                document.getElementById('stage-goal-title').innerText = "■ 五兩贖身"; 
+                document.getElementById('stage-goal-desc').innerText = "盡速賺夠 5.0 兩贖人！時限為第二年六月前。";
+                ui.lbl.innerText = "賀生"; 
+                ui.text.innerText = "「昔盛時尚能知我，我豈能忘恩？我這就去變賣祖產，做苦力湊足五兩銀子！」（提示：打探敵對青樓柳媽可開啟贖身事件）";
+                ui.choices.innerHTML = "";
+                populateDynamicActions();
+                updateMainSceneImage();
+                setProtagAction('idle');
+            });
+        }
+
+        function attemptBuyout() {
+            if(gold < REDEEM_PRICE) { playSound('alert'); ui.lbl.innerText = "蔡媼"; ui.text.innerText = "「想當便宜王八？沒五兩銀子免談！」"; return; }
+            playChapterTransition(5, () => {
+                gold -= REDEEM_PRICE; 
+                ch = 5; 
+                ink = 85; 
+                flashScreen(); 
+                playSound('levelUp');
+                ui.badge.innerText = "第五章：結髮相守"; 
+                ui.badge.className = "text-[8px] md:text-[9px] bg-purple-800 text-white px-1.5 py-0.5 rounded shadow-sm";
+                document.getElementById('stage-goal-title').innerText = "■ 溫馨陪伴"; 
+                document.getElementById('stage-goal-desc').innerText = "瑞雲過門。請呵護她將「生死羈絆」提升至 80，並備考鄉試。";
+                ui.lbl.innerText = "大婚"; 
+                ui.text.innerText = "你傾盡家財贖出瑞雲。過門之夜，瑞雲自慚形穢：「妾身醜陋，願為婢女服侍郎君。」你握住她的手：「人生重知己，卿勿多言。」";
+                ui.choices.innerHTML = `<div class="text-[9px] md:text-[10px] text-purple-900 font-bold p-1.5 bg-purple-100 border border-purple-200 rounded text-center col-span-2 shadow-sm">瑞雲已迎娶入門。請安排右側的每月行程，照顧愛妻並備考鄉試。</div>`;
+                populateDynamicActions();
+                updateMainSceneImage();
+                setProtagAction('idle');
+            });
+        }
+
+        function transitionToCh6() {
+            playChapterTransition(6, () => {
+                ch = 6; 
+                flashScreen(); 
+                playSound('levelUp');
+                ui.badge.innerText = "第六章：姑蘇煙雨"; 
+                document.getElementById('stage-goal-title').innerText = "■ 終局解咒"; 
+                document.getElementById('stage-goal-desc').innerText = "和生現身！請承接仙水，洗去黑印。";
+                ui.lbl.innerText = "蘇州遇仙"; 
+                ui.text.innerText = "你攜妻赴蘇州趕考。客棧中偶遇當年點墨的「和生」。和生大笑：「美色易得，真心難求。賀兄通過試煉，今日璞玉當重現光芒！」";
+                ui.choices.innerHTML = `<button onclick="openWashMiniGame()" class="w-full py-1.5 rounded bg-yellow-600 text-stone-950 font-black border border-amber-400 font-serif-tc shadow-md animate-bounce col-span-2">✨ 承接仙水 ‧ 點除墨咒</button>`;
+                populateDynamicActions();
+                updateMainSceneImage();
+                setProtagAction('idle');
+            });
+        }
+
+        // --- 快速互動（專項修復：強制同步監視器畫面）---
+        window.quickAction = function(type) {
+            playSound('click');
+            // 立即刷新監視器畫面，確保對應SVG/圖片顯示
+            setProtagAction(type);
+            // 1.5秒後切回待機
+            setTimeout(() => { setProtagAction('idle'); }, 1500);
+
+            if(type === 'bribe') {
+                if(gold < 0.2) { playSound('alert'); return; }
+                gold -= 0.2; addLiveLog("賄賂秋月，獲得瑞雲的喜好情報。"); triggerFloatUp("資金", -0.2);
+            } else if(type === 'talk') {
+                love += 3; ui.text.innerText = "「賀郎才情，妾身欽佩。」"; triggerFloatUp("好感", 3);
+            } else if(type === 'gift') {
+                if(gold < 0.5) { playSound('alert'); return; }
+                gold -= 0.5; love += 10; ui.text.innerText = "瑞雲收下字畫，眼中閃爍光芒。"; triggerFloatUp("好感", 10);
+            } else if(type === 'spy') {
+                rep += 3; ui.text.innerText = "你散佈柳媽媽欲買瑞雲的假消息，迫使蔡媼同意以五兩賤賣瑞雲！";
+                ui.choices.innerHTML = `<button onclick="attemptBuyout()" class="w-full py-1.5 rounded bg-emerald-700 text-white border border-emerald-400 font-serif-tc shadow-md col-span-2">👑 攜帶五兩 ‧ 強勢贖身</button>`;
+            } else if(type === 'care') {
+                love += 5; ui.text.innerText = "你為妻子畫眉，毫不在意那塊黑印。瑞雲感動落淚。"; triggerFloatUp("羈絆", 5);
+            } else if(type === 'friend') {
+                rep += 5; ui.text.innerText = "方生驚嘆你重情重義，為你引薦蘇州大儒。"; triggerFloatUp("聲望", 5);
+            }
+            updateStatsUI();
+        };
+
+        // --- 洗臉小遊戲 ---
+        const washModal = document.getElementById('modal-wash');
+        const washCanvas = document.getElementById('wash-canvas');
+        const washCtx = washCanvas.getContext('2d');
+        const washBgImg = document.getElementById('wash-bg-image');
+        const washLoading = document.getElementById('wash-loading');
+        
+        let isWashing = false;
+        let totalInkPixels = 0;
+        let gameInitialized = false;
+
+        function openWashMiniGame() { 
+            playSound('click'); 
+            washModal.classList.remove('hidden');
+            gameInitialized = false;
+            
+            washLoading.style.display = 'flex';
+            document.getElementById('wash-percent').innerText = "0%";
+            document.getElementById('bar-wash').style.width = "0%";
+            
+            const bgUrl = IMAGE_BEDS.washGameBackground;
+            
+            if (bgUrl && bgUrl.trim() !== "") {
+                washBgImg.src = bgUrl;
+                washBgImg.style.opacity = '0';
+                
+                washBgImg.onload = function() {
+                    washBgImg.style.opacity = '1';
+                    washLoading.style.display = 'none';
+                    initWashCanvas();
+                    gameInitialized = true;
+                };
+                
+                washBgImg.onerror = function() {
+                    washLoading.innerHTML = '<i class="fa-solid fa-image-broken mr-2"></i>底圖加載失敗';
+                    washLoading.style.display = 'flex';
+                    setTimeout(() => {
+                        initWashCanvas();
+                        gameInitialized = true;
+                    }, 500);
+                };
+            } else {
+                washLoading.style.display = 'none';
+                initWashCanvas();
+                gameInitialized = true;
+            }
+        }
+
+        function initWashCanvas() {
+            washCtx.clearRect(0, 0, washCanvas.width, washCanvas.height);
+            
+            washCtx.fillStyle = "rgba(30, 25, 20, 0.25)";
+            washCtx.fillRect(0, 0, washCanvas.width, washCanvas.height);
+            
+            washCtx.fillStyle = "#0a0809";
+            washCtx.shadowColor = 'rgba(0,0,0,0.8)';
+            washCtx.shadowBlur = 8;
+            
+            drawInkBlob(150, 70, 38);
+            drawInkBlob(110, 85, 22);
+            drawInkBlob(185, 80, 20);
+            
+            washCtx.shadowBlur = 0;
+            
+            totalInkPixels = countDarkPixels();
+            bindWashEvents();
+        }
+
+        function drawInkBlob(centerX, centerY, radius) {
+            washCtx.beginPath();
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const r = radius * (0.75 + Math.random() * 0.5);
+                const x = centerX + Math.cos(angle) * r;
+                const y = centerY + Math.sin(angle) * r;
+                if (i === 0) {
+                    washCtx.moveTo(x, y);
+                } else {
+                    const prevAngle = ((i - 1) / 8) * Math.PI * 2;
+                    const prevR = radius * (0.75 + ((i - 1) % 3) * 0.25);
+                    const cpX = centerX + Math.cos((prevAngle + angle) / 2) * (prevR + r) / 2;
+                    const cpY = centerY + Math.sin((prevAngle + angle) / 2) * (prevR + r) / 2;
+                    washCtx.quadraticCurveTo(cpX, cpY, x, y);
+                }
+            }
+            washCtx.closePath();
+            washCtx.fill();
+        }
+
+        function countDarkPixels() {
+            const imgData = washCtx.getImageData(0, 0, washCanvas.width, washCanvas.height);
+            let count = 0;
+            for (let i = 0; i < imgData.data.length; i += 4) {
+                const gray = (imgData.data[i] + imgData.data[i+1] + imgData.data[i+2]) / 3;
+                if (imgData.data[i+3] > 50 && gray < 80) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        function bindWashEvents() {
+            washCanvas.onmousedown = startWash;
+            washCanvas.onmousemove = doWash;
+            washCanvas.onmouseup = endWash;
+            washCanvas.onmouseleave = endWash;
+            
+            washCanvas.ontouchstart = function(e) { e.preventDefault(); startWash(e.touches[0]); };
+            washCanvas.ontouchmove = function(e) { e.preventDefault(); doWash(e.touches[0]); };
+            washCanvas.ontouchend = function(e) { e.preventDefault(); endWash(); };
+        }
+
+        function startWash(e) {
+            if (!gameInitialized) return;
+            isWashing = true;
+            const pos = getCanvasPosition(e);
+            eraseAt(pos.x, pos.y);
+        }
+
+        function doWash(e) {
+            if (!isWashing || !gameInitialized) return;
+            const pos = getCanvasPosition(e);
+            eraseAt(pos.x, pos.y);
+        }
+
+        function endWash() {
+            if (!isWashing) return;
+            isWashing = false;
+            updateWashProgress();
+        }
+
+        function getCanvasPosition(e) {
+            const rect = washCanvas.getBoundingClientRect();
+            const scaleX = washCanvas.width / rect.width;
+            const scaleY = washCanvas.height / rect.height;
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY
+            };
+        }
+
+        function eraseAt(x, y) {
+            washCtx.globalCompositeOperation = 'destination-out';
+            washCtx.beginPath();
+            washCtx.arc(x, y, 42, 0, Math.PI * 2);
+            washCtx.fill();
+            washCtx.globalCompositeOperation = 'source-over';
+        }
+
+        function updateWashProgress() {
+            const currentDark = countDarkPixels();
+            const erased = totalInkPixels - currentDark;
+            const percent = Math.min(100, Math.max(0, Math.round((erased / totalInkPixels) * 100)));
+            
+            document.getElementById('wash-percent').innerText = `${percent}%`;
+            document.getElementById('bar-wash').style.width = `${percent}%`;
+            
+            if (percent >= 85) {
+                setTimeout(() => {
+                    washModal.classList.add('hidden');
+                    triggerEnding("True");
+                }, 600);
+            }
+        }
+
+        // --- 結局 ---
+        function triggerEnding(type) {
+            flashScreen();
+            updateEndingImage(type);
+
+            if(type === "True") {
+                playSound('levelUp'); 
+                ink = 0; 
+                updateStatsUI();
+                const inkLayer = document.getElementById('ink-layer-wife');
+                if(inkLayer) inkLayer.style.opacity = 0;
+                ui.lbl.innerText = "★ 真結局：狀元及第，藍橋叩曉";
+                ui.text.innerHTML = "黑痕隨水而落，瑞雲豔麗更勝往昔！隔年賀生高中狀元，衣錦還鄉。王公卿與蔡媼羞愧難當，兩人恩愛一生，傳為千古佳話。";
+            } else if(type === "Dead") {
+                ui.lbl.innerText = "☠ 壞結局：香消玉殞";
+                ui.text.innerHTML = "在粗鄙繁重的勞役中，瑞雲體力崩潰，悄然逝去。徒留無盡遺憾。";
+            } else if(type === "Timeout") {
+                ui.lbl.innerText = "☠ 遺憾結局：空留遺卷";
+                ui.text.innerHTML = "時限已過，蔡媼將瑞雲賣往苦寒之地。賀生終身未娶，寫下一部名傳千古的悼亡詩集。";
+            }
+            ui.choices.innerHTML = `<button onclick="location.reload()" class="w-full py-2 rounded bg-stone-800 text-amber-200 border border-amber-600 font-serif-tc col-span-2 shadow-md">📜 塵緣已盡 ‧ 點擊重新開始</button>`;
+            ui.btnRun.disabled = true; 
+            ui.quickActions.innerHTML = "";
+            setProtagAction('idle');
+        }
+
+        // --- 初始化 ---
+        function initImageBeds() {
+            const titleImg = document.getElementById('title-bg-image');
+            if (IMAGE_BEDS.titleCover) {
+                titleImg.src = IMAGE_BEDS.titleCover;
+                titleImg.classList.remove('hidden');
+            }
+        }
+
+        initImageBeds();
+        updateStatsUI();
+        setProtagAction('idle');
+
+    </script>
+
+</body>
+
+</html>
